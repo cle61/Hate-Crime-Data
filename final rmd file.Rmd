@@ -1,0 +1,196 @@
+---
+title: "Final"
+author: "Catherine Ellor"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+Load Date:
+```{r}
+setwd("~/R Files")
+hatec<-read.csv("hate_crime.csv")
+View(hatec)
+```
+#Research Questions
+Using hate crimes as an indicator of racism, has racism been on the rise within the past decade?
+Has racism against specifics groups increased while overlal numbers decrease?
+
+Use difference in means (can be found in problem set 5 causality with non-experimental data)  like a before and after design
+add uncertainty
+then a visualization 
+(is there a spike in hate crimes in 2001? due to twin towers thing)
+
+
+#Years
+```{r}
+range(hatec$DATA_YEAR)
+```
+the date ranges between 1991 and 2020. it's a 29 year period. We will be looking specifically between 1991->2001 & 2010->2020.
+
+#Race based hate crime decade comparison:
+```{r}
+hatec$racebased <- NA
+  
+hatec$racebased<- ifelse(hatec$BIAS_DESC == "Anti-Black or African American" | hatec$BIAS_DESC == "Anti-White"| hatec$BIAS_DESC == "Anti-Jewish" | hatec$BIAS_DESC == "Anti-Hispanic or Latino"| hatec$BIAS_DESC == "Anti-Other Race/Ethnicity/Ancestry"|hatec$BIAS_DESC == "Anti-Arab",1,0)
+
+```
+
+```{r}
+crimethisdecade <- data.frame((hatec$racebased == 1), (hatec$DATA_YEAR >= 2010))
+table(crimethisdecade)
+```
+47873 race-based hate crimes during the 2010s (2010-2020)
+```{r}
+crime90sdecade <- data.frame((hatec$racebased == 1), (hatec$DATA_YEAR <=2001))
+table(crime90sdecade)
+
+racecrimeoverall <- data.frame((hatec$racebased == 1), (hatec$DATA_YEAR))
+table(racecrimeoverall)
+```
+62366 race-based hate crimes in the 90s (1991-2001)
+
+#Difference in Means - Before and After Comparison
+```{r}
+mean(hatec$racebased[hatec$DATA_YEAR <=2001])
+mean(hatec$racebased[hatec$DATA_YEAR >=2010])
+
+
+bfa<-mean(hatec$racebased[hatec$DATA_YEAR >=2010]) - mean(hatec$racebased[hatec$DATA_YEAR <=2001])
+bfa
+```
+#Visualization
+```{r}
+hatedata<-tapply(hatec$racebased, INDEX=hatec$DATA_YEAR, mean)
+
+plot(x=names(hatedata),
+     y=hatedata,
+     main="Race-Based Hate Crimes through the Years",
+     xlab = "Year",
+     ylab = "Mean Race-Based Hate Crimes Committed",
+     cex.lab = .8,
+     type="l",
+     las=2,
+      col = "blue"
+)
+```
+
+Has racism against specifics groups increased while overall numbers decrease?
+```{r}
+hatedata<-tapply(hatec$racebased, INDEX=hatec$DATA_YEAR, mean)
+```
+
+```{r}
+hatec$asian<- NA
+  
+hatec$asian<- ifelse(hatec$BIAS_DESC == "Anti-Asian",1,0)
+```
+
+```{r}
+asiancrimestats2 <- data.frame((hatec$asian == 1), (hatec$DATA_YEAR <= 2001))
+table(asiancrimestats2)
+
+asiancrimestats1 <- data.frame((hatec$asian == 1), (hatec$DATA_YEAR >= 2010))
+table(asiancrimestats1)
+asiancrimestats <- data.frame((hatec$asian == 1), (hatec$DATA_YEAR))
+table(asiancrimestats)
+```
+
+There's a dramatic increase in Anti-Asian Hate Crimes between '94-'95, and then once again in 2019-2020. But overall rate has dropped. Compared to race-based statistics, Anti-Asian Hate crimes have gone down however the decrease in Anti-Asian hate crimes is much less than the drop in Anti-Race hate crimes overall.
+```{r}
+mean(hatec$asian[hatec$DATA_YEAR <=2001])
+
+mean(hatec$asian[hatec$DATA_YEAR >=2010])
+
+
+ac<-mean(hatec$asian[hatec$DATA_YEAR >=2010]) - mean(hatec$asian[hatec$DATA_YEAR <=2001])
+ac
+```
+
+```{r}
+hatedata2<-tapply(hatec$asian, INDEX=hatec$DATA_YEAR, mean)
+
+plot(x=names(hatedata2),
+     y=hatedata2,
+     main="Anti-Asian Hate Crimes through the Years",
+     xlab = "Year",
+     ylab = "Anti-Asian Hate Crimes",
+     type="l",
+     las=2,
+      col = "Green")
+
+```
+This follows closely with the overall racial hate crime graph. However, specifically with the year 2020 there was a dramatic increase due to COVID-19. 
+
+Is is different for sexual orientation hate crimes?
+```{R}
+hatec$lgbtq<- NA
+  
+hatec$lgbtq<- ifelse(hatec$BIAS_DESC == "Anti-Gay (Male)" |hatec$BIAS_DESC == "Anti-Lesbian, Gay, Bisexual, or Transgender (Mixed Group)"|hatec$BIAS_DESC =="Anti-Lesbian (Female)"|hatec$BIAS_DESC == "Anti-Transgender"|hatec$BIAS_DESC == "Anti-Gender Non-Conforming",1,0)
+```
+
+```{r}
+lgbtqcrimestats2 <- data.frame((hatec$lgbtq == 1), (hatec$DATA_YEAR <= 2001))
+table(lgbtqcrimestats2)
+
+lgbtqcrimestats <- data.frame((hatec$lgbtq == 1), (hatec$DATA_YEAR >= 2010))
+table(lgbtqcrimestats)
+```
+
+
+```{r}
+mean(hatec$lgbtq[hatec$DATA_YEAR <=2001])
+
+mean(hatec$lgbtq[hatec$DATA_YEAR >=2010])
+
+
+lgbtc<-mean(hatec$lgbtq[hatec$DATA_YEAR >=2010]) - mean(hatec$lgbtq[hatec$DATA_YEAR <=2001])
+lgbtc
+```
+
+```{r}
+hatedata3<-tapply(hatec$lgbtq, INDEX=hatec$DATA_YEAR, mean)
+
+plot(x=names(hatedata3),
+     y=hatedata3,
+     main="Anti-LGBTQ Hate Crimes through the Years",
+     xlab = "Years",
+     ylab = "Anti-LGBTQ Hate Crimes",
+     type="l",
+     las=2,
+      col = "Red")
+```
+
+They rose sharply around 2015 likely due to the prevalence of the supreme court decision on gay-marriage.
+
+What these three graphs and their data show is that hat-crimes regarding various communities and demographics have been decreasing however in recent years such as 2019-2020 they've been rising. They haven't gotten to the numbers they'd once had 20 to 30 years ago however when compared to recent years, they've been on the rise. 
+What this says about our current society is that while we have progressed some, it seems we are beginning to backslide a little bit. 
+Of course, this does not take into account the number of crimes that go unreported. we simply do not have those reports so the actual numbers may be different since we cannot include what we don't know. 
+The graphs also make clear the fact that certain events in time have a profound impact on which minorities are targeted more frequently than others.
+
+```{r}
+plot(x=names(hatedata),
+     y=hatedata,
+     main="Race-Based Hate Crimes through the Years",
+     xlab = "Year",
+     ylab = "Mean Number of Hate Crimes Committed",
+     ylim = c(0, 0.90),
+     cex.lab = .8,
+     type="l",
+     las=2,
+     lwd=2,
+     col = "blue")
+lines(x=names(hatedata2),
+      y=hatedata2,
+      col="green")
+lines(x=names(hatedata3),
+      y=hatedata3,
+      col="red")
+legend("topright",  col=c("blue", "green", "red"), 
+       c("Anti-Race", "Anti-Asian", "Anti-LGBTQ"), 
+       cex = .6,
+       lwd=1,
+       bty="n")
+```
